@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DHL Tracking System</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:Arial;
+  background:linear-gradient(135deg,#ff6b6b,#feca57,#ff9ff3);
+  min-height:100vh;
+  padding:20px;
+}
+
+.container{
+  max-width:650px;
+  margin:auto;
+  background:#fff;
+  padding:25px;
+  border-radius:15px;
+  text-align:center;
+}
+
+/* SEARCH */
+.search-box{
+  position:relative;
+  margin-top:20px;
+}
+
+#searchInput{
+  width:100%;
+  padding:15px 50px 15px 15px;
+  font-size:16px;
+  border:2px solid #ffcc00;
+  border-radius:10px;
+  outline:none;
+}
+
+.search-btn{
+  position:absolute;
+  right:5px;
+  top:5px;
+  height:85%;
+  width:45px;
+  border:none;
+  background:#ffcc00;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* RESULT */
+.result{
+  display:none;
+  margin-top:20px;
+  text-align:left;
+}
+
+/* CARD */
+.dhl-card{
+  max-width:500px;
+  margin:auto;
+  background:#fff;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 10px 25px rgba(0,0,0,0.25);
+}
+
+/* HEADER */
+.dhl-header{
+  background:#ffcc00;
+  padding:18px;
+  text-align:center;
+}
+
+/* ADMIN BUTTON */
+.dhl-btn{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  background:#ffcc00;
+  border:none;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+/* ADMIN */
+.admin{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.85);
+  justify-content:center;
+  align-items:center;
+}
+
+.admin-box{
+  background:#fff;
+  padding:20px;
+  border-radius:10px;
+  width:90%;
+  max-width:400px;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin:6px 0;
+}
+
+/* ANIMATION */
+@keyframes shake{
+  0%{transform:translateX(-50%) translateY(0px);}
+  50%{transform:translateX(-50%) translateY(1px);}
+  100%{transform:translateX(-50%) translateY(0px);}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>DHL Tracking System</h2>
+
+<div class="search-box">
+<input id="searchInput" placeholder="DHL-XXXXXX">
+<button class="search-btn" onclick="searchTracking()">Search</button>
+</div>
+
+<div id="result" class="result"></div>
+
+</div>
+
+<!-- ADMIN BUTTON (10 clicks) -->
+<button class="dhl-btn" onclick="adminClick()">ADMIN</button>
+
+<!-- ADMIN PANEL -->
+<div class="admin" id="admin">
+<div class="admin-box">
+
+<h3>Admin Panel</h3>
+
+<input id="fullname" placeholder="Nome e Cognome">
+<input id="address" placeholder="Indirizzo">
+<input id="gmail" placeholder="Gmail">
+<input id="phone" placeholder="Numero telefono">
+
+<button onclick="addShipment()">Add Shipment</button>
+
+</div>
+</div>
+
+<script>
+
+let shipments = JSON.parse(localStorage.getItem("dhlShipments")) || [];
+
+let adminClicks = 0;
+const PASSWORD = "200911";
+
+/* ADMIN 10 CLICKS */
+function adminClick(){
+
+  adminClicks++;
+
+  if(adminClicks < 10) return;
+
+  adminClicks = 0;
+
+  const pass = prompt("Enter Admin Password:");
+
+  if((pass || "").trim() === PASSWORD){
+    document.getElementById("admin").style.display = "flex";
+  }else{
+    alert("Wrong password");
+  }
+}
+
+/* ADD SHIPMENT */
+function addShipment(){
+
+  const code = "DHL-" + Math.floor(Math.random()*900000+100000);
+
+  const s = {
+    code,
+    fullname: document.getElementById("fullname").value,
+    address: document.getElementById("address").value,
+    gmail: document.getElementById("gmail").value,
+    phone: document.getElementById("phone").value,
+    createdAt: Date.now()
+  };
+
+  shipments.unshift(s);
+  localStorage.setItem("dhlShipments", JSON.stringify(shipments));
+
+  alert("Added: " + code);
+
+  showTrackingAndReceipt(s);
+}
+
+/* SEARCH */
+function searchTracking(){
+
+  const code = document.getElementById("searchInput").value.toUpperCase();
+  const s = shipments.find(x => x.code === code);
+
+  if(!s){
+    document.getElementById("result").style.display="block";
+    document.getElementById("result").innerHTML="Not Found";
+    return;
+  }
+
+  showTrackingAndReceipt(s);
+}
+
+/* TRACKING + 6 DAYS SYSTEM */
+function showTrackingAndReceipt(s){
+
+  let hours = Math.floor((Date.now() - s.createdAt) / (1000 * 60 * 60));
+
+  if(hours > 144) hours = 144; // 6 days max
+
+  let progress = (hours / 144) * 100;
+
+  let status = "In Transit";
+  if(progress >= 100) status = "Delivered";
+
+  document.getElementById("result").style.display = "block";
+
+  document.getElementById("result").innerHTML = `
+
+  <div class="dhl-card">
+
+    <div class="dhl-header">
+      <h2 style="margin:0;">DHL EXPRESS</h2>
+      <small>6 Days Delivery System</small>
+    </div>
+
+    <div style="padding:20px;">
+
+      <p><b>Tracking:</b> ${s.code}</p>
+      <p><b>Status:</b> <span style="color:green;">${status}</span></p>
+      <p><b>Progress:</b> ${Math.floor(progress)}%</p>
+
+      <!-- TRACK LINE -->
+      <div style="position:relative;height:14px;background:#eee;border-radius:20px;margin:20px 0;overflow:visible;">
+
+        <div style="width:${progress}%;height:100%;background:#28a745;border-radius:20px;"></div>
+
+        <!-- TRUCK -->
+        <div style="
+          position:absolute;
+          top:-30px;
+          left:${progress}%;
+          transform:translateX(-50%);
+          font-size:28px;
+          animation:shake 0.4s infinite;
+        ">
+          🚚<span style="font-size:10px;background:#ffcc00;padding:2px 4px;border-radius:3px;">DHL</span>
+        </div>
+
+      </div>
+
+      <hr>
+
+      <h3 style="color:#d40511;">Receiver Details</h3>
+
+      <p><b>Name:</b> ${s.fullname}</p>
+      <p><b>Address:</b> ${s.address}</p>
+      <p><b>Email:</b> ${s.gmail}</p>
+      <p><b>Phone:</b> ${s.phone}</p>
+
+      <hr>
+
+      <p style="text-align:center;color:#d40511;font-weight:bold;">
+        DHL Global Logistics
+      </p>
+
+    </div>
+  </div>
+
+  `;
+}
+
+</script>
+
+</body>
+</html>
