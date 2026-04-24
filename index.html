@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tracking System</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:Arial;
+  background:linear-gradient(135deg,#ff6b6b,#feca57,#ff9ff3);
+  min-height:100vh;
+  padding:20px;
+}
+
+.container{
+  max-width:650px;
+  margin:auto;
+  background:#fff;
+  padding:25px;
+  border-radius:15px;
+  text-align:center;
+}
+
+/* INPUT */
+input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:2px solid #ffcc00;
+  border-radius:10px;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  background:#ffcc00;
+  border:none;
+  cursor:pointer;
+}
+
+/* RESULT */
+.result{
+  display:none;
+  margin-top:20px;
+  text-align:left;
+}
+
+/* CARD */
+.card{
+  background:#fff;
+  border-radius:10px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.2);
+  overflow:hidden;
+}
+
+/* HEADER */
+.header{
+  background:#ffcc00;
+  padding:15px;
+  text-align:center;
+}
+
+/* TRACK */
+.track{
+  position:relative;
+  height:12px;
+  background:#eee;
+  border-radius:20px;
+  margin:20px 0;
+}
+
+/* PROGRESS */
+.progress{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#00c853,#00e676);
+  border-radius:20px;
+}
+
+/* 🚚 TRUCK */
+.truck{
+  position:absolute;
+  top:-22px;
+  right:100%;
+  font-size:26px;
+  transform: scaleX(-1);
+}
+
+/* ADMIN BUTTON */
+.admin-btn{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:#ffcc00;
+  border:none;
+}
+
+/* ADMIN PANEL */
+.admin{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.85);
+  justify-content:center;
+  align-items:center;
+}
+
+.admin-box{
+  background:#fff;
+  padding:20px;
+  border-radius:10px;
+  width:90%;
+  max-width:400px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Tracking System</h2>
+
+<input id="code" placeholder="DHL-XXXXXX">
+<button onclick="search()">Search</button>
+
+<div id="result" class="result"></div>
+
+</div>
+
+<button class="admin-btn" onclick="openAdmin()">DHL</button>
+
+<!-- ADMIN -->
+<div class="admin" id="admin">
+<div class="admin-box">
+
+<h3>Admin Panel</h3>
+
+<input id="fullname" placeholder="Nome e Cognome">
+<input id="address" placeholder="Indirizzo">
+<input id="gmail" placeholder="Gmail">
+<input id="phone" placeholder="Numero telefono">
+
+<button onclick="addShipment()">Add Shipment</button>
+
+</div>
+</div>
+
+<script>
+
+let shipments = [];
+let clicks = 0;
+let locked = false;
+
+const PASSWORD = "200911";
+
+/* 🔐 ADMIN OPEN (10 clicks) */
+function openAdmin(){
+
+  if(locked) return;
+
+  clicks++;
+
+  if(clicks < 10) return;
+
+  clicks = 0;
+  locked = true;
+
+  setTimeout(()=> locked = false, 3000);
+
+  const pass = prompt("Password:");
+
+  if((pass || "").trim() === PASSWORD){
+    document.getElementById("admin").style.display = "flex";
+  }else{
+    alert("Wrong password");
+  }
+}
+
+/* ➕ ADD SHIPMENT */
+function addShipment(){
+
+  const code = "DHL-" + Math.floor(Math.random()*900000+100000);
+
+  const s = {
+    code,
+    fullname: document.getElementById("fullname").value,
+    address: document.getElementById("address").value,
+    gmail: document.getElementById("gmail").value,
+    phone: document.getElementById("phone").value,
+    createdAt: Date.now()
+  };
+
+  shipments.push(s);
+
+  alert("Added: " + code);
+
+  show(s);
+}
+
+/* 🔍 SEARCH */
+function search(){
+
+  const code = document.getElementById("code").value.toUpperCase();
+  const s = shipments.find(x => x.code === code);
+
+  if(!s){
+    document.getElementById("result").style.display="block";
+    document.getElementById("result").innerHTML="Not Found";
+    return;
+  }
+
+  show(s);
+}
+
+/* 📦 SHOW */
+function show(s){
+
+  document.getElementById("result").style.display="block";
+
+  document.getElementById("result").innerHTML = `
+  <div class="card">
+
+    <div class="header">
+      <h3>DHL EXPRESS</h3>
+    </div>
+
+    <div style="padding:15px;">
+
+      <p><b>Tracking:</b> ${s.code}</p>
+      <p><b>Status:</b> In transit</p>
+
+      <div class="track">
+        <div class="progress"></div>
+        <div class="truck" id="truck">🚚</div>
+      </div>
+
+      <hr>
+
+      <h3>Recivuta</h3>
+
+      <p><b>Nome:</b> ${s.fullname}</p>
+      <p><b>Indirizzo:</b> ${s.address}</p>
+      <p><b>Email:</b> ${s.gmail}</p>
+      <p><b>Telefono:</b> ${s.phone}</p>
+
+    </div>
+
+  </div>
+  `;
+
+  setTimeout(()=>moveTruck(s.createdAt),100);
+}
+
+/* 🚚 MOVE 0% → 100% */
+function moveTruck(start){
+
+  const truck = document.getElementById("truck");
+  const bar = document.querySelector(".progress");
+
+  function update(){
+
+    let hours = (Date.now() - start) / 3600000;
+
+    if(hours > 144) hours = 144;
+
+    let progress = (hours / 144) * 100;
+
+    truck.style.right = (100 - progress) + "%";
+    bar.style.width = progress + "%";
+
+  }
+
+  setInterval(update,1000);
+  update();
+}
+
+</script>
+
+</body>
+</html>
