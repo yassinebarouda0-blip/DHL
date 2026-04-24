@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DHL Tracking System</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  font-family:Arial;
+  background:linear-gradient(135deg,#ff6b6b,#feca57,#ff9ff3);
+  min-height:100vh;
+  padding:20px;
+}
+
+.container{
+  max-width:650px;
+  margin:auto;
+  background:#fff;
+  padding:25px;
+  border-radius:15px;
+  text-align:center;
+}
+
+/* INPUT */
+input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:2px solid #ffcc00;
+  border-radius:10px;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  background:#ffcc00;
+  border:none;
+  cursor:pointer;
+}
+
+/* RESULT */
+.result{
+  display:none;
+  margin-top:20px;
+  text-align:left;
+}
+
+/* CARD */
+.card{
+  background:#fff;
+  border-radius:10px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.2);
+  overflow:hidden;
+}
+
+/* HEADER */
+.header{
+  background:#ffcc00;
+  padding:15px;
+  text-align:center;
+}
+
+/* TRACK */
+.track{
+  position:relative;
+  height:12px;
+  background:#eee;
+  border-radius:20px;
+  margin:20px 0;
+  overflow:visible;
+}
+
+/* GREEN BAR */
+.progress{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#00c853,#00e676);
+}
+
+/* 🚚 TRUCK */
+.truck{
+  position:absolute;
+  top:-22px;
+  right:0%;
+  font-size:24px;
+
+  /* ✔ شاحنة طبيعية */
+  transform: scaleX(-1);
+}
+
+/* ADMIN */
+.admin-btn{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:#ffcc00;
+  border:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>DHL Tracking System</h2>
+
+<input id="code" placeholder="DHL-XXXXXX">
+<button onclick="search()">Search</button>
+
+<div id="result" class="result"></div>
+
+</div>
+
+<button class="admin-btn" onclick="openAdmin()">DHL</button>
+
+<script>
+
+let shipments = [
+{
+  code:"DHL-123456",
+  fullname:"User Test",
+  address:"Sharm El Sheikh ➜ Italy",
+  gmail:"test@gmail.com",
+  phone:"000",
+  createdAt: Date.now() - (3600000 * 20)
+}
+];
+
+function search(){
+
+  let code = document.getElementById("code").value.toUpperCase();
+  let s = shipments.find(x => x.code === code);
+
+  if(!s){
+    document.getElementById("result").style.display="block";
+    document.getElementById("result").innerHTML="Not Found";
+    return;
+  }
+
+  show(s);
+}
+
+function show(s){
+
+  let hours = (Date.now() - s.createdAt) / 3600000;
+  if(hours > 144) hours = 144;
+
+  let progress = (hours / 144) * 100;
+
+  document.getElementById("result").style.display="block";
+
+  document.getElementById("result").innerHTML = `
+  <div class="card">
+
+    <div class="header">
+      <h3>DHL EXPRESS</h3>
+    </div>
+
+    <div style="padding:15px;">
+
+      <p><b>Tracking:</b> ${s.code}</p>
+      <p><b>Status:</b> In transit</p>
+
+      <div class="track">
+        <div class="progress"></div>
+        <div class="truck" id="truck">🚚</div>
+      </div>
+
+      <hr>
+
+      <p><b>Name:</b> ${s.fullname}</p>
+      <p><b>Address:</b> ${s.address}</p>
+      <p><b>Email:</b> ${s.gmail}</p>
+      <p><b>Phone:</b> ${s.phone}</p>
+
+    </div>
+
+  </div>
+  `;
+
+  setTimeout(()=>move(progress),100);
+}
+
+function move(target){
+
+  let truck = document.getElementById("truck");
+  let bar = document.querySelector(".progress");
+
+  let current = parseFloat(truck.dataset.pos || 0);
+
+  function anim(){
+
+    let diff = target - current;
+
+    if(Math.abs(diff) < 0.01){
+      current = target;
+      truck.style.right = "100%";
+      bar.style.width = "100%";
+      return;
+    }
+
+    current += diff * 0.02;
+
+    truck.style.right = (100 - current) + "%";
+    truck.dataset.pos = current;
+
+    bar.style.width = current + "%";
+
+    requestAnimationFrame(anim);
+  }
+
+  anim();
+}
+
+/* ADMIN (simple) */
+function openAdmin(){
+  alert("Admin panel (demo)");
+}
+
+</script>
+
+</body>
+</html>
