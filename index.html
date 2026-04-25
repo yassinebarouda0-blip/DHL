@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DHL Tracking System</title>
+
+<style>
+
+/* ===================== GLOBAL RESET ===================== */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial, sans-serif;
+}
+
+body{
+  background:linear-gradient(135deg,#1e3c72,#2a5298);
+  min-height:100vh;
+  padding:20px;
+}
+
+/* ===================== MAIN CONTAINER ===================== */
+.container{
+  max-width:520px;
+  margin:auto;
+  background:#fff;
+  border-radius:25px;
+  padding:35px;
+  text-align:center;
+  box-shadow:0 30px 60px rgba(0,0,0,0.3);
+}
+
+/* ===================== LOGO ===================== */
+.logo{
+  font-size:3em;
+  margin:20px 0;
+  font-weight:bold;
+}
+
+/* ===================== INPUT ===================== */
+input{
+  width:100%;
+  padding:18px;
+  border:3px solid #ffaa00;
+  border-radius:15px;
+  text-align:center;
+  margin-bottom:15px;
+}
+
+/* ===================== BUTTON ===================== */
+button{
+  width:100%;
+  padding:18px;
+  background:linear-gradient(45deg,#ff6600,#ffaa00);
+  border:none;
+  color:white;
+  font-weight:bold;
+  border-radius:15px;
+  cursor:pointer;
+}
+
+/* ===================== ADMIN BUTTON ===================== */
+.admin-btn{
+  position:fixed;
+  bottom:30px;
+  right:30px;
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  background:gold;
+  font-weight:bold;
+  border:4px solid #fff;
+}
+
+/* ===================== MODAL ===================== */
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.9);
+  justify-content:center;
+  align-items:center;
+}
+
+/* ===================== RECIVUTA (كما هي) ===================== */
+.recivuta{
+  background:#fff;
+  width:90%;
+  max-width:850px;
+  padding:30px;
+  border-radius:20px;
+}
+
+.header{
+  background:linear-gradient(45deg,#ff6600,#ffaa00);
+  color:white;
+  padding:25px;
+  border-radius:15px;
+  text-align:center;
+  font-size:22px;
+}
+
+.box{
+  margin-top:20px;
+  padding:15px;
+  background:#f8f9fa;
+  border-radius:15px;
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  padding:10px 0;
+  border-bottom:1px dashed #ccc;
+}
+
+.barcode{
+  margin-top:25px;
+  font-size:28px;
+  font-weight:bold;
+  letter-spacing:5px;
+}
+
+.footer{
+  margin-top:20px;
+  background:linear-gradient(45deg,#ff6600,#ffaa00);
+  padding:20px;
+  color:white;
+  border-radius:15px;
+  text-align:center;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- ===================== MAIN UI ===================== -->
+<div class="container">
+
+  <div class="logo">📦 DHL SYSTEM</div>
+
+  <h2>Tracking System</h2>
+
+  <input id="code" placeholder="Enter Tracking Code">
+  <button onclick="search()">Search</button>
+
+  <div id="result"></div>
+
+</div>
+
+<!-- ===================== ADMIN BUTTON ===================== -->
+<button class="admin-btn" id="adminBtn">DHL</button>
+
+<!-- ===================== MODAL ===================== -->
+<div class="modal" id="modal">
+  <div class="recivuta" id="recivuta"></div>
+</div>
+
+<script>
+
+/* ===================== STORAGE ===================== */
+let shipments = JSON.parse(localStorage.getItem("shipments")) || [];
+let current = null;
+let clicks = 0;
+
+/* ===================== ADMIN SYSTEM (10 clicks + password) ===================== */
+document.getElementById("adminBtn").onclick = function(){
+
+  clicks++;
+
+  if(clicks === 10){
+    clicks = 0;
+
+    let pass = prompt("Enter Admin Password:");
+
+    if(pass === "200911"){
+      createShipment();
+    } else {
+      alert("Wrong Password");
+    }
+  }
+};
+
+/* ===================== CREATE SHIPMENT ===================== */
+function createShipment(){
+
+  let names = ["Mohamed","Fatima","Hassan","Aicha","Omar"];
+
+  let i = Math.floor(Math.random()*names.length);
+
+  let shipment = {
+    code: "JD" + Date.now(),
+    name: names[i],
+    from: "Sharm El Sheikh",
+    to: "Italia"
+  };
+
+  shipments.push(shipment);
+  localStorage.setItem("shipments", JSON.stringify(shipments));
+
+  document.getElementById("code").value = shipment.code;
+
+  current = shipment;
+  showRecivuta();
+}
+
+/* ===================== SEARCH ===================== */
+function search(){
+
+  let code = document.getElementById("code").value;
+
+  let found = shipments.find(x => x.code === code);
+
+  if(!found){
+    document.getElementById("result").innerHTML = "❌ Not Found";
+    return;
+  }
+
+  current = found;
+  showRecivuta();
+}
+
+/* ===================== RECIVUTA (كما هي عندك) ===================== */
+function showRecivuta(){
+
+  document.getElementById("modal").style.display = "flex";
+
+  document.getElementById("recivuta").innerHTML = `
+
+    <div class="header">
+      📦 DHL RICEVUTA
+    </div>
+
+    <div class="box">
+
+      <div class="row">
+        <span>Name</span>
+        <span>${current.name}</span>
+      </div>
+
+      <div class="row">
+        <span>Code</span>
+        <span>${current.code}</span>
+      </div>
+
+      <div class="row">
+        <span>From</span>
+        <span>${current.from}</span>
+      </div>
+
+      <div class="row">
+        <span>To</span>
+        <span>${current.to}</span>
+      </div>
+
+    </div>
+
+    <div class="barcode">
+      ${current.code}
+    </div>
+
+    <div class="footer">
+      DHL SIMULATION SYSTEM
+    </div>
+
+    <br>
+    <button onclick="closeModal()">Close</button>
+
+  `;
+}
+
+/* ===================== CLOSE ===================== */
+function closeModal(){
+  document.getElementById("modal").style.display = "none";
+}
+
+</script>
+
+</body>
+</html>
