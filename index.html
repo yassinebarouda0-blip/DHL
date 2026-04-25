@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DHL Tracking - Sharm El Sheikh ➜ Italia</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:'Cairo', sans-serif;
+  background:linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  min-height:100vh;
+  padding:20px;
+  direction:ltr;
+}
+
+.container{
+  max-width:500px;
+  margin:auto;
+  background:#fff;
+  border-radius:25px;
+  padding:35px;
+  box-shadow:0 30px 60px rgba(0,0,0,0.25);
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+
+.container::before{
+  content:'🚚 Sharm El Sheikh Egitto ➜ 🇮🇹 Milano Italia';
+  position:absolute;
+  top:15px;
+  left:50%;
+  transform:translateX(-50%);
+  background:linear-gradient(45deg, #ff6600, #ffaa00);
+  color:white;
+  padding:12px 25px;
+  border-radius:30px;
+  font-weight:700;
+  font-size:1em;
+  box-shadow:0 8px 20px rgba(255,102,0,0.4);
+  z-index:10;
+}
+
+.logo{
+  font-size:3.5em;
+  background:linear-gradient(45deg, #ff6600, #ffaa00, #4ecdc4);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin:20px 0;
+  font-weight:700;
+  animation:logoGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes logoGlow{
+  from{text-shadow:0 0 20px rgba(255,102,0,0.5);}
+  to{text-shadow:0 0 30px rgba(78,205,196,0.8);}
+}
+
+.title{
+  color:#333;
+  font-size:1.5em;
+  margin-bottom:30px;
+  font-weight:700;
+}
+
+input{
+  width:100%;
+  padding:20px;
+  border:4px solid #ffaa00;
+  border-radius:20px;
+  font-size:18px;
+  font-family:'Cairo', sans-serif;
+  margin-bottom:25px;
+  transition:all 0.4s;
+  background:#fff;
+  text-align:center;
+}
+
+input:focus{
+  outline:none;
+  border-color:#ff6600;
+  box-shadow:0 0 30px rgba(255,170,0,0.4);
+  transform:translateY(-2px);
+}
+
+.search-btn{
+  width:100%;
+  padding:20px;
+  background:linear-gradient(45deg, #ff6600, #ffaa00);
+  color:white;
+  border:none;
+  border-radius:20px;
+  font-size:20px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all 0.4s;
+  box-shadow:0 10px 30px rgba(255,102,0,0.4);
+}
+
+.search-btn:hover{
+  transform:translateY(-5px);
+  box-shadow:0 20px 40px rgba(255,102,0,0.6);
+}
+
+/* TRACK */
+.track-container{
+  margin:35px 0;
+  padding:25px;
+  background:#f8f9fa;
+  border-radius:20px;
+  border:3px solid #ffaa00;
+}
+
+.route-labels{
+  display:flex;
+  justify-content:space-between;
+  font-weight:700;
+  color:#666;
+  margin-bottom:20px;
+  font-size:1.1em;
+}
+
+.route-labels span:first-child{
+  color:#ff6600;
+  font-size:1.2em;
+}
+
+.route-labels span:last-child{
+  color:#4ecdc4;
+  font-size:1.2em;
+}
+
+.route-track{
+  height:25px;
+  background:linear-gradient(90deg, #e9ecef 0%, #dee2e6 50%, #e9ecef 100%);
+  border-radius:20px;
+  overflow:hidden;
+  position:relative;
+  box-shadow:inset 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.progress-bar{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg, #ff6600, #ffaa00 50%, #4ecdc4 100%);
+  border-radius:20px;
+  transition:all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position:relative;
+  box-shadow:0 0 20px rgba(255,102,0,0.5);
+}
+
+.truck-anim{
+  position:absolute;
+  top:-55px;
+  left:0%;
+  font-size:36px;
+  transition:all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  filter:drop-shadow(0 6px 12px rgba(0,0,0,0.4));
+  z-index:20;
+}
+
+.day-counter{
+  margin-top:20px;
+  font-size:1.4em;
+  font-weight:700;
+  color:#ff6600;
+}
+
+/* DHL PANEL */
+.dhl-panel{
+  position:fixed;
+  bottom:35px;
+  right:35px;
+  width:90px;
+  height:90px;
+  background:linear-gradient(45deg, #ffaa00, #ff6600);
+  border:5px solid #fff;
+  border-radius:50%;
+  color:#fff;
+  font-weight:800;
+  font-size:1.1em;
+  cursor:pointer;
+  box-shadow:0 20px 40px rgba(255,170,0,0.6);
+  transition:all 0.4s ease;
+  z-index:1000;
+  animation:pulse 2s infinite;
+  line-height:1.1;
+}
+
+@keyframes pulse{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.05);}
+}
+
+/* RESULT */
+.card{
+  margin-top:30px;
+  background:linear-gradient(145deg, #fff, #f8f9fa);
+  border:4px solid #ffaa00;
+  border-radius:25px;
+  padding:30px;
+  box-shadow:0 20px 50px rgba(255,170,0,0.2);
+}
+
+/* RECIVUTA */
+.recivuta-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.95);
+  z-index:2000;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+}
+
+.recivuta{
+  background:#fff;
+  width:100%;
+  max-width:900px;
+  max-height:95vh;
+  overflow-y:auto;
+  border-radius:25px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.7);
+}
+
+.recivuta-header{
+  background:linear-gradient(135deg, #ff6600, #ffaa00, #4ecdc4);
+  color:white;
+  padding:40px;
+  text-align:center;
+}
+
+.dhl-big-logo{
+  font-size:5em;
+  margin-bottom:15px;
+}
+
+.recivuta-title{
+  font-size:2.5em;
+  font-weight:800;
+  margin-bottom:10px;
+}
+
+.recivuta-body{
+  padding:50px;
+}
+
+.invoice-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:50px;
+  margin-bottom:50px;
+}
+
+@media (max-width:768px){
+  .invoice-grid{grid-template-columns:1fr; gap:30px;}
+}
+
+.invoice-section{
+  background:#f8f9fa;
+  padding:40px;
+  border-radius:25px;
+  border:4px solid #ffaa00;
+}
+
+.section-title{
+  color:#ff6600;
+  font-size:1.8em;
+  font-weight:800;
+  margin-bottom:30px;
+  text-align:center;
+  padding-bottom:20px;
+  border-bottom:5px solid #ffaa00;
+}
+
+.detail-row{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:20px;
+  padding:15px 0;
+  font-size:1.2em;
+  border-bottom:2px dashed #dee2e6;
+}
+
+.detail-row:last-child{
+  border-bottom:none;
+  font-weight:800;
+  color:#ff6600;
+  font-size:1.5em;
+  background:linear-gradient(90deg, #ff6600, #ffaa00);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.barcode-section{
+  text-align:center;
+  margin:50px 0;
+  padding:35px;
+  background:#f8f9fa;
+  border-radius:25px;
+  border:4px dashed #ffaa00;
+}
+
+.barcode-code{
+  font-family:'Courier New', monospace;
+  font-size:2.5em;
+  font-weight:900;
+  letter-spacing:6px;
+  background:linear-gradient(90deg, #333, #666, #333);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.footer-note{
+  background:linear-gradient(135deg, #ff6600, #ffaa00);
+  color:white;
+  padding:35px;
+  border-radius:25px;
+  text-align:center;
+  font-weight:700;
+  margin-top:40px;
+  font-size:1.1em;
+}
+
+.print-actions{
+  padding:40px;
+  text-align:center;
+  background:#f8f9fa;
+  border-top:5px solid #ffaa00;
+}
+
+.btn{
+  padding:20px 45px;
+  border:none;
+  border-radius:15px;
+  font-size:18px;
+  font-weight:800;
+  cursor:pointer;
+  margin:0 15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="logo">📦 DHL</div>
+  <h1 class="title">Sistema di Tracciamento DHL</h1>
+  
+  <input id="code" placeholder="Inserisci Codice Tracciamento JDxxxxxxxx">
+  <button class="search-btn" onclick="search()">🔍 Traccia Spedizione</button>
+  
+  <div id="result"></div>
+</div>
+
+<button class="dhl-panel" id="dhlPanel">DHL</button>
+
+<div class="recivuta-modal" id="recivutaModal">
+  <div class="recivuta" id="recivutaContent"></div>
+</div>
+
+<script>
+let shipments = JSON.parse(localStorage.getItem("shipments")) || [];
+let currentShipment = null;
+let clicks = 0;
+
+document.getElementById("dhlPanel").onclick = function(){
+  clicks++;
+  if(clicks === 10){
+    clicks = 0;
+    let password = prompt("Password:");
+    if(password === "sier"){
+      createShipment();
+    } else {
+      alert("❌ Password errata");
+    }
+  }
+  this.style.transform = 'scale(1.2) rotate(360deg)';
+  setTimeout(() => this.style.transform = '', 300);
+};
+
+function createShipment(){
+  let names = ["Mohamed Ahmed Cherqui", "Fatima Ali Zahra", "Abdallah Ben Saleh", "Aicha Mohammed Hariri", "Hassan Ahmed Jazouli"];
+  let addresses = ["Casablanca - Hay Mohammadi", "Rabat - Hay Agadir", "Tanger - Malabata", "Marrakech - Jardin", "Agadir - Anza"];
+  let emails = ["mohamed.cherqui@dhl.ma", "fatima.zahra@dhl.ma", "abdallah.saleh@dhl.ma", "aicha.hariri@dhl.ma", "hassan.jazouli@dhl.ma"];
+  let phones = ["+212600123456", "+212612345678", "+212623456789", "+212634567890", "+212645678901"];
+  
+  let random = Math.floor(Math.random() * 5);
+  
+  currentShipment = {
+    code: "JD" + Math.floor(100000000000000000 + Math.random() * 900000000000000000),
+    fullname: names[random],
+    address: addresses[random],
+    gmail: emails[random],
+    phone: phones[random],
+    origin: "🌴 Sharm El Sheikh - Egitto 🇪🇬",
+    destination: "🇮🇹 Milano - Italia",
+    createdAt: Date.now()
+  };
+  
+  shipments.push(currentShipment);
+  localStorage.setItem("shipments", JSON.stringify(shipments));
+  document.getElementById("code").value = currentShipment.code;
+  showRecivuta();
+}
+
+function search(){
+  let code = document.getElementById("code").value.trim();
+  let s = shipments.find(x => x.code === code);
+  
+  if(!s){
+    document.getElementById("result").innerHTML = '<div style="color:#ff6600; font-weight:800; padding:30px; font-size:1.2em;">❌ Codice tracciamento non trovato</div>';
+    return;
+  }
+  
+  currentShipment = s;
+  showTracking(s);
+}
+
+function showTracking(s){
+  let hours = (Date.now() - s.createdAt) / 3600000;
+  let totalDays = 6;
+  let day = Math.floor(hours / 24);
+  if(day > totalDays) day = totalDays;
+  
+  let progress = (day / totalDays) * 100;
+  let status = day === totalDays ? "✅ Consegnato a Milano" : `🚚 Giorno ${day} di ${totalDays}`;
+  
+  document.getElementById("result").innerHTML = `
+    <div class="card">
+      <h3 style="color:#ff6600; font-size:1.5em; margin-bottom:20px; font-weight:800;">${s.code}</h3>
+      
+      <div class="track-container">
+        <div class="route-labels">
+          <span>${s.origin}</span>
+          <span>${s.destination}</span>
+        </div>
+        
+        <div class="route-track">
+          <div class="progress-bar" id="progressBar"></div>
+          <div class="truck-anim" id="truckAnim">🚚</div>
+        </div>
+        
+        <div class="day-counter" id="dayCounter">${status}</div>
+      </div>
+      
+      <div style="margin-top:25px; padding:20px; background:linear-gradient(135deg, #fff3cd, #ffeaa7); border-radius:20px; border-left:6px solid #ffaa00; font-weight:700; color:#ff6600;">
+        🎯 Clicca <strong>DHL giallo 10 volte</strong> → <code>sier</code> → RECIVUTA pronta!
+      </div>
+    </div>
+  `;
+  
+  setTimeout(() => {
+    document.getElementById("progressBar").style.width = progress + '%';
+    document.getElementById("truckAnim").style.left = progress + '%';
+    document.getElementById("dayCounter").textContent = status;
+  }, 300);
+}
+
+function showRecivuta(){
+  const modal = document.getElementById("recivutaModal");
+  const content = document.getElementById("recivutaContent");
+  const now = new Date();
+  
+  content.innerHTML = `
+    <div class="recivuta-header">
+      <div class="dhl-big-logo">📦 DHL EXPRESS</div>
+      <h2 class="recivuta-title">RECIVUTA UFFICIALE</h2>
+      <div style="font-size:1.3em; margin-top:15px; font-weight:600;">🚚 Sharm El Sheikh ➜ 🇮🇹 Milano</div>
+    </div>
+    
+    <div class="recivuta-body">
+      <div class="invoice-grid">
+        <div class="invoice-section">
+          <div class="section-title">👤 Dati Cliente Marocchino</div>
+          <div class="detail-row"><span>Nome Completo:</span><span>${currentShipment.fullname}</span></div>
+          <div class="detail-row"><span>Indirizzo:</span><span>${currentShipment.address}</span></div>
+          <div class="detail-row"><span>Email:</span><span>${currentShipment.gmail}</span></div>
+          <div class="detail-row"><span>Telefono:</span><span>${currentShipment.phone}</span></div>
+        </div>
+        
+        <div class="invoice-section">
+          <div class="section-title">🚚 Dettagli Spedizione</div>
+          <div class="detail-row"><span>Codice Tracciamento:</span><span><strong>${currentShipment.code}</strong></span></div>
+          <div class="detail-row"><span>Origine:</span><span>${currentShipment.origin}</span></div>
+          <div class="detail-row"><span>Destinazione:</span><span>${currentShipment.destination}</span></div>
+          <div class="detail-row"><span>Data Consegna:</span><span>${now.toLocaleDateString('it-IT')}</span></div>
+          <div class="detail-row"><span>Valore:</span><span>€ 450,00</span></div>
+        </div>
+      </div>
+      
+      <div class="barcode-section">
+        <div style="color:#ff6600; font-weight:800; margin-bottom:20px; font-size:1.5em;">Codice a Barre Ufficiale</div>
+        <div class="barcode-code">${currentShipment.code}</div>
+      </div>
+      
+      <div class="footer-note">
+        <strong>DHL EXPRESS ITALIA SRL</strong><br>
+        Sharm El Sheikh ➜ Milano Italia<br>
+        RECIVUTA UFFICIALE valida per Dogana Italiana 🇮🇹<br>
+        <strong>Consegna completata con successo ✅</strong>
+      </div>
+    </div>
+    
+    <div class="print-actions">
+      <button class="btn btn-close" onclick="closeRecivuta()">Chiudi</button>
+      <button class="btn btn-print" onclick="window.print()">🖨️ Stampa RECIVUTA</button>
+    </div>
